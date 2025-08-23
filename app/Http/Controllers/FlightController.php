@@ -8,6 +8,7 @@ use App\Models\Flight;
 use Illuminate\Http\Request;
 use App\Services\SeatSelectService;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Casts\Json;
 
 class FlightController extends Controller
@@ -21,9 +22,58 @@ class FlightController extends Controller
         $this->seatSelectService = $seatSelectService;
     }
     public function checkin(Request $request){
-        
-        $seleccion = $this->seatSelectService->execute($request->route('id'));
-        return response()->json(['message'=> 'Asiento asignado con exito']);
+        $start = microtime(true);
+        Log::info("Inicio de ejecución checkin", [
+            'flightId' => $request->route('id'),
+            'time' => $start
+        ]);
+
+        try {
+            $flight = Flight::find($request->route('id'));
+
+            if (!$flight) {
+                return response([
+                    "code" => 404,
+                    "data" => (object)[]
+                ], 404);
+            }
+
+            // Ejecutar lógica de asignación de asientos
+            $this->seatSelectService->execute($flight->flight_id);
+
+            $response = response([
+                'code' => 200,
+                'data' => $this->convertKeysToCamelCase([
+                    'flight_id'        => $flight->flight_id,
+                    'takeoff_date_time'=> $flight->takeoff_date_time,
+                    'takeoff_airport'  => $flight->takeoff_airport,
+                    'landing_date_time'=> $flight->landing_date_time,
+                    'landing_airport'  => $flight->landing_airport,
+                    'airplane_id'      => $flight->airplane_id,
+                    'passengers'       => $flight->passengers->toArray()
+                ])
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error("Error en checkin", [
+                'flightId' => $request->route('id'),
+                'error'    => $e->getMessage()
+            ]);
+
+            $response = response([
+                'code' => 400,
+                'errors' => "could not connect to db"
+            ], 400);
+        }
+
+        $end = microtime(true);
+        $elapsed = $end - $start;
+        Log::info("Fin de ejecución checkin", [
+            'flightId' => $request->route('id'),
+            'duration_seconds' => $elapsed
+        ]);
+
+        return $response;
     }
 
 
