@@ -14,9 +14,6 @@ use Illuminate\Database\Eloquent\Casts\Json;
 class FlightController extends Controller
 {
     protected $seatSelectService;
-    /**
-     * Class constructor.
-     */
     public function __construct(SeatSelectService $seatSelectService)
     {
         $this->seatSelectService = $seatSelectService;
@@ -38,8 +35,23 @@ class FlightController extends Controller
                 ], 404);
             }
 
-            // Ejecutar lógica de asignación de asientos
             $this->seatSelectService->execute($flight->flight_id);
+
+            $passengersReturn = $flight->passengers()->with('boardingPasses')->get();
+            $pasajeros = $passengersReturn-> map(function($passenger)use($flight){
+                 $p = $passenger->boardingPasses()->firstWhere('flight_id',$flight->flight_id);
+                return $this->convertKeysToCamelCase([
+                    'passenger_id' => $passenger->passenger_id, 
+                    'name' => $passenger->name,
+                    'dni' => $passenger->dni,
+                    'age' => $passenger->age,
+                    'country' => $passenger->country,
+                    'boarding_pass_id' =>$p->boarding_pass_id ?? null,
+                    'purchase_id' => $p->purchase_id ?? null,
+                    'seat_type_id' => $p->seat_type_id ?? null,
+                    'seat_id' => $p->seat_id ?? null,
+                ]);
+            });
 
             $response = response([
                 'code' => 200,
@@ -50,7 +62,7 @@ class FlightController extends Controller
                     'landing_date_time'=> $flight->landing_date_time,
                     'landing_airport'  => $flight->landing_airport,
                     'airplane_id'      => $flight->airplane_id,
-                    'passengers'       => $flight->passengers->toArray()
+                    'passengers'       => $pasajeros
                 ])
             ], 200);
 
@@ -95,8 +107,7 @@ class FlightController extends Controller
     public function snakeToCamel($string) {
         return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
     }
-
-        
+       
     public function show($flightId) {
         $flight = Flight::findOrFail($flightId);
         $response = Json::encode([
@@ -127,6 +138,5 @@ class FlightController extends Controller
                     'airplane_id' =>$flight->airplane_id,
             ])
         ]);
-
     }
 }
