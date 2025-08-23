@@ -37,5 +37,5 @@ class Flight extends Model
     {
         return $this->hasManyThrough(Passenger::class,BoardingPass::class,'flight_id','passenger_id','flight_id','passenger_id');
     }
-
+    public $timestamps = false; 
 }

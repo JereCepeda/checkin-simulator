@@ -13,4 +13,5 @@ class Airplane extends Model
     ];
     protected $table = 'airplane';
     protected $primaryKey = 'airplane_id';
+    public $timestamps = false; 
 }

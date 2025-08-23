@@ -21,4 +21,5 @@ class Passenger extends Model
     {
         return $this->hasMany(BoardingPass::class,'passenger_id','passenger_id');
     }
+    public $timestamps = false; 
 }

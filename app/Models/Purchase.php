@@ -22,5 +22,5 @@ class Purchase extends Model
     {
         return $this->hasManyThrough(Passenger::class,BoardingPass::class,'purchase_id','passenger_id','purchase_id','passenger_id');
     }
-
+    public $timestamps = false; 
 }

@@ -24,4 +24,5 @@ class Seat extends Model
     {
         return $this->belongsTo(SeatType::class, 'seat_type_id', 'seat_type_id');
     }
+    public $timestamps = false; 
 }
