@@ -33,4 +33,9 @@ class Flight extends Model
         return $this->hasManyThrough(Purchase::class,BoardingPass::class,'flight_id','purchase_id','flight_id','purchase_id');
     }
 
+    public function passengers()
+    {
+        return $this->hasManyThrough(Passenger::class,BoardingPass::class,'flight_id','passenger_id','flight_id','passenger_id');
+    }
+
 }

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BoardingPass extends Model
 {
     use HasFactory;
+    
     protected $fillable = [
         'purchase_id',
         'passenger_id',
@@ -28,7 +29,11 @@ class BoardingPass extends Model
     {
         return $this->belongsTo(Flight::class,'flight_id','boarding_pass_id');
     }
-
+     public function purchase()
+    {
+        return $this->belongsTo(Purchase::class, 'purchase_id', 'purchase_id');
+    }
+    
     public function passengers()
     {
         return $this->hasManyThrough(Passenger::class,BoardingPass::class,'flight_id','passenger_id','flight_id','passenger_id');

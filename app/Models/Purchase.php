@@ -14,8 +14,13 @@ class Purchase extends Model
         'purchase_date'
     ];
     
-    public function boardingPass(){
-        return $this->hasMany(boardingPass::class);
+    public function boardingPasses()
+    {
+        return $this->hasMany(BoardingPass::class, 'purchase_id', 'purchase_id');
+    }
+    public function passengers()
+    {
+        return $this->hasManyThrough(Passenger::class,BoardingPass::class,'purchase_id','passenger_id','purchase_id','passenger_id');
     }
 
 }

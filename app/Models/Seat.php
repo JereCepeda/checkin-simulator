@@ -17,4 +17,11 @@ class Seat extends Model
         'airplane_id',
         'seat_type_id',
     ];
+    public function airplane() {
+        return $this->belongsTo(Airplane::class, 'airplane_id', 'airplane_id');
+    }
+    public function type()
+    {
+        return $this->belongsTo(SeatType::class, 'seat_type_id', 'seat_type_id');
+    }
 }

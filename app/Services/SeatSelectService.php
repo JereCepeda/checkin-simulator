@@ -13,22 +13,23 @@ class SeatSelectService
     protected $groupPassengerService;
     protected $getBoardingPassService;
 
-    public function __construct(SeatService $seatService,GetBoardingPassService $getBoardingPassService,GroupPassengerService $groupPassengerService,GetPassengerService $getPassengerService){
+    public function __construct(SeatService $seatService,
+                                GetBoardingPassService $getBoardingPassService,
+                                GroupPassengerService $groupPassengerService,
+                                GetPassengerService $getPassengerService){
+
         $this->getPassengerService = $getPassengerService;
         $this->seatService = $seatService;
         $this->groupPassengerService = $groupPassengerService;
         $this->getBoardingPassService = $getBoardingPassService;
     }
     
-    public function execute($id)
+    public function execute($flightId)
     {
-        $flight= Flight::where('flight_id',$id)->first();
+        $flight= Flight::where('flight_id',$flightId)->first();
         $airplane = $flight->airplane;
-        $grupo = $this->groupPassengerService->getGroupPurchase($flight->flight_id);
-        // $boardingPass = $this->getBoardingPassService->execute($request);
         
-        $this->seatService->searchSeat($grupo,$airplane->airplane_id);
-
-        return "";
+        $asignaciones= $this->seatService->assignSeats($flight->passengers,$airplane->airplane_id);
+        return $asignaciones;
     }
 }
